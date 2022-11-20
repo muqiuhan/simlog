@@ -1,0 +1,56 @@
++---------------+
+| Simlog v0.0.1 |
++---------------+
+    Simple OCaml Log Library, really crude
+
+    Copyright (c) 2022 Muqiu Han
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+DEPEND
+    1. ocolor : https://github.com/marc-chevalier/ocolor
+    2. calendar : https://github.com/ocaml-community/calendar
+
+    Can be installed via "opam install ocolor calendar"
+
+BUILD, TEST, and INSTALL
+    dune build @install @runtest --profile release
+    dune install
+
+    For example:
+    $ dune build @install @runtest --profile release
+    | 2022-11-20 16:13:04    [INFO    ]      This is a info message
+    | 2022-11-20 16:13:04    [WARNING ]      This is a warning message
+    | 2022-11-20 16:13:04    [ERROR   ]      This is a error message
+    | 2022-11-20 16:13:04    [CRITICAL]      This is a critical message
+
+HOW TO USE?
+    The use of this log library is very simple, you can view test/simlog.ml
+
+    The log has five levels: Critical, Error, Warning, Info, Debug
+    Corresponding to five functions: critical, error, warning, info, debug
+
+    1. For log level settings
+        The log level can control the output by setting Level.global.
+
+    2. Control over output time
+        The time zone used by the global log time can be set by Time.global.
+
+    3. Control over log colors
+        The source code uses ocolor to set the color, and the output color can be changed freely.

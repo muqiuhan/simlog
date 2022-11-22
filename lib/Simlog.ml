@@ -76,57 +76,91 @@ type t =
   ; level : Level.t
   }
 
-let critical (message : string) : unit =
-  if Level.filter Level.Critical
-  then (
-    let log = { time = Time.current !Time.time; message; level = Level.Critical } in
+module type Message_Template = sig
+  type t =
+    { time : string
+    ; message : string
+    }
+
+  val log : string -> t
+  val format : string -> string -> string -> unit
+  val level : Level.t
+end
+
+module Message_Functor =
+functor
+  (M : Message_Template)
+  ->
+  struct
+    let print (message : string) : unit =
+      if Level.filter M.level
+      then (
+        let log = M.log message in
+        M.format log.time (Level.to_string M.level) log.message)
+    ;;
+  end
+
+module Critical = Message_Functor (struct
+  type t =
+    { time : string
+    ; message : string
+    }
+
+  let level = Level.Critical
+  let log (message : string) : t = { time = Time.current !Time.time; message }
+
+  let format =
     Ocolor_format.printf
       "@{<hi_white>| %s@} \t @{<bg_red>@{<white>[%s]@}@} \t @{<red>%s@}\n"
-      log.time
-      (Level.to_string log.level)
-      log.message)
-;;
+  ;;
+end)
 
-let error (message : string) : unit =
-  if Level.filter Level.Error
-  then (
-    let log = { time = Time.current !Time.time; message; level = Level.Error } in
-    Ocolor_format.printf
-      "@{<hi_white>| %s@} \t @{<red>[%s] \t %s@}\n"
-      log.time
-      (Level.to_string log.level)
-      log.message)
-;;
+module Error = Message_Functor (struct
+  type t =
+    { time : string
+    ; message : string
+    }
 
-let warning (message : string) : unit =
-  if Level.filter Level.Warning
-  then (
-    let log = { time = Time.current !Time.time; message; level = Level.Warning } in
-    Ocolor_format.printf
-      "@{<hi_white>| %s@} \t @{<yellow>[%s] \t %s@}\n"
-      log.time
-      (Level.to_string log.level)
-      log.message)
-;;
+  let level = Level.Error
+  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<red>[%s] \t %s@}\n"
+end)
 
-let info (message : string) : unit =
-  if Level.filter Level.Info
-  then (
-    let log = { time = Time.current !Time.time; message; level = Level.Info } in
-    Ocolor_format.printf
-      "@{<hi_white>| %s@} \t @{<green>[%s] \t %s@}\n"
-      log.time
-      (Level.to_string log.level)
-      log.message)
-;;
+module Warning = Message_Functor (struct
+  type t =
+    { time : string
+    ; message : string
+    }
 
-let debug (message : string) : unit =
-  if Level.filter Level.Debug
-  then (
-    let log = { time = Time.current !Time.time; message; level = Level.Debug } in
-    Ocolor_format.printf
-      "@{<hi_white>| %s@} \t @{<blue>[%s] \t %s@}\n"
-      log.time
-      (Level.to_string log.level)
-      log.message)
-;;
+  let level = Level.Warning
+  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<yellow>[%s] \t %s@}\n"
+end)
+
+module Info = Message_Functor (struct
+  type t =
+    { time : string
+    ; message : string
+    }
+
+  let level = Level.Info
+  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<green>[%s] \t %s@}\n"
+end)
+
+module Debug = Message_Functor (struct
+  type t =
+    { time : string
+    ; message : string
+    }
+
+  let level = Level.Debug
+  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<blue>[%s] \t %s@}\n"
+end)
+
+let critical = Critical.print
+let error = Error.print
+let warning = Warning.print
+let info = Info.print
+let debug = Debug.print

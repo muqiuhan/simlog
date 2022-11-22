@@ -18,8 +18,7 @@
 (package
  (name simlog)
  (allow_empty)
- (synopsis "A Simple logging library for ocaml")
- (description "A Simple logging library for ocaml")
+ (description "Simple OCaml Log Library, really crude")
  (depends ocaml dune ocolor calendar)
  (tags
   (log logging logger)))

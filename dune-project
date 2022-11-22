@@ -19,7 +19,7 @@
  (name simlog)
  (allow_empty)
  (description "Simple OCaml Log Library, really crude")
- (depends ocaml dune ocolor calendar)
+ (depends ocaml dune ocolor)
  (tags
   (log logging logger)))
 

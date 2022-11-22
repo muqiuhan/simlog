@@ -12,7 +12,6 @@ depends: [
   "ocaml"
   "dune" {>= "3.5"}
   "ocolor"
-  "calendar"
   "odoc" {with-doc}
 ]
 build: [

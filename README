@@ -1,5 +1,5 @@
 +---------------+
-| Simlog v0.0.2 |
+| Simlog v0.0.3 |
 +---------------+
     Simple OCaml Log Library, really crude
 
@@ -25,9 +25,8 @@
 
 DEPEND
     1. ocolor : https://github.com/marc-chevalier/ocolor
-    2. calendar : https://github.com/ocaml-community/calendar
 
-    Can be installed via "opam install ocolor calendar"
+    Can be installed via "opam install ocolor"
 
 BUILD, TEST, and INSTALL
     dune build @install @runtest --profile release
@@ -50,7 +49,7 @@ HOW TO USE?
         The log level can control the output by setting Level.global.
 
     2. Control over output time
-        The time zone used by the global log time can be set by Time.global.
+        The source code uses Unix.localtime to get log time, and the output time can be changed freely.
 
     3. Control over log colors
         The source code uses ocolor to set the color, and the output color can be changed freely.

@@ -53,21 +53,11 @@ module Level = struct
 end
 
 module Time = struct
-  type t =
-    | UTC
-    | Local
-
-  let current (time : t) : string =
-    match time with
-    | UTC ->
-      let () = CalendarLib.(Time_Zone.change Time_Zone.UTC) in
-      CalendarLib.(Calendar.now () |> Printer.Calendar.to_string)
-    | Local ->
-      let () = CalendarLib.(Time_Zone.change Time_Zone.Local) in
-      CalendarLib.(Calendar.now () |> Printer.Calendar.to_string)
+  let current () : string =
+    let tm = Unix.localtime (Unix.time ()) in
+    let format = Printf.sprintf "%d-%02d-%02d %02d:%02d:%02d" in
+    format (tm.tm_year + 1900) (tm.tm_mon + 1) tm.tm_mday tm.tm_hour tm.tm_min tm.tm_sec
   ;;
-
-  let time = ref Local
 end
 
 type t =
@@ -107,7 +97,7 @@ module Critical = Message_Functor (struct
     }
 
   let level = Level.Critical
-  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let log (message : string) : t = { time = Time.current (); message }
 
   let format =
     Ocolor_format.printf
@@ -122,7 +112,7 @@ module Error = Message_Functor (struct
     }
 
   let level = Level.Error
-  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let log (message : string) : t = { time = Time.current (); message }
   let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<red>[%s] \t %s@}\n"
 end)
 
@@ -133,7 +123,7 @@ module Warning = Message_Functor (struct
     }
 
   let level = Level.Warning
-  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let log (message : string) : t = { time = Time.current (); message }
   let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<yellow>[%s] \t %s@}\n"
 end)
 
@@ -144,7 +134,7 @@ module Info = Message_Functor (struct
     }
 
   let level = Level.Info
-  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let log (message : string) : t = { time = Time.current (); message }
   let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<green>[%s] \t %s@}\n"
 end)
 
@@ -155,7 +145,7 @@ module Debug = Message_Functor (struct
     }
 
   let level = Level.Debug
-  let log (message : string) : t = { time = Time.current !Time.time; message }
+  let log (message : string) : t = { time = Time.current (); message }
   let format = Ocolor_format.printf "@{<hi_white>| %s@} \t @{<blue>[%s] \t %s@}\n"
 end)
 

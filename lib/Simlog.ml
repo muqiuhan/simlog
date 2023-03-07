@@ -326,7 +326,8 @@ let log l m =
   if level_to_int (Some l) >= level_to_int (Some !log_level)
   then (
     Printf.fprintf !out "%s\x1b[0m    %s\n" p m;
-    set_count_logged (get_count_logged l + 1) ~lvl:l)
+    set_count_logged (get_count_logged l + 1) ~lvl:l);
+  flush stdout
 ;;
 
 let debug : string -> unit = log Debug

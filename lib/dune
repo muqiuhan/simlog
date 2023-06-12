@@ -1,3 +1,2 @@
 (library
- (public_name simlog)
- (libraries unix))
+ (public_name simlog))

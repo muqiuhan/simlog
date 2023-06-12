@@ -1,2 +1,3 @@
 (library
- (public_name simlog))
+ (public_name simlog)
+ (libraries core core_unix))

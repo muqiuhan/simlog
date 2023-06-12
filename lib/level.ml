@@ -1,1 +1,4 @@
-type t
+type t =
+  | Info
+  | Warn
+  | Error

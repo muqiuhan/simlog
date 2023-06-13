@@ -1,3 +1,3 @@
 (library
  (public_name simlog)
- (libraries unix))
+ (libraries core core_unix ocolor))

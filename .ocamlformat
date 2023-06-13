@@ -1,1 +1,23 @@
-profile = janestreet
+profile = default
+
+leading-nested-match-parens = false
+space-around-variants = false
+space-around-arrays = false
+space-around-lists = false
+space-around-records = false
+break-infix = fit-or-vertical
+break-separators = after
+break-cases = fit-or-vertical
+break-collection-expressions=wrap
+exp-grouping = preserve
+let-and = sparse
+type-decl = sparse
+if-then-else=k-r
+function-indent=4
+cases-exp-indent = 4
+extension-indent=4
+indent-after-in=4
+let-binding-indent=4
+match-indent=0
+match-indent-nested=always
+cases-exp-indent=4

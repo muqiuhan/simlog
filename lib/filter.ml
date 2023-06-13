@@ -1,9 +1,6 @@
-(** Decide whether to record *)
+(** Filter, you can customize which logs need to be recorded *)
 
-type t = {
-  level : Level.t;
-  time : Time.t;
-}
+type t = Recorder.t
 
 module type T = sig
   val filter : t -> bool

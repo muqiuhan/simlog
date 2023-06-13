@@ -31,7 +31,7 @@ module Default_logger : Logger = struct
             | Stdout | Stderr ->
                 Ocolor_format.kasprintf
                   (fun s -> s)
-                  "|@{<white> %s <white>@}(@{<white>%s<white>@}) %s" time thread
+                  "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
                   ((Formatter.Level.format_str_with_ascii
                       (Format.sprintf "%s > %s" level record.log_message))
                      record.level)

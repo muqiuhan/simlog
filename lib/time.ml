@@ -1,3 +1,3 @@
-type t = float
+include Core.Time
 
-let get = Core_unix.gettimeofday
+let get = now

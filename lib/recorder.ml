@@ -32,19 +32,36 @@ module type Recorder_opt = sig
   val opt : record_opt
 end
 
-module type Buffer = sig
-  type buffer = t Stack.t
+module Buffer = struct
+  class t =
+    object (_)
+      val records : record Stack.t = Stack.create ()
+      val mutex : Caml_threads.Mutex.t = Caml_threads.Mutex.create ()
+      val nonempty : Caml_threads.Condition.t = Caml_threads.Condition.create ()
 
-  val buffer : buffer
-  val push : t -> unit
-  val pop : unit -> t
+      method push (record : record) : unit =
+        Mutex.lock mutex;
+        let was_empty = Stack.is_empty records in
+            Stack.push record records;
+            if was_empty then Condition.broadcast nonempty;
+            Mutex.unlock mutex
+
+      method pop () : record =
+        Mutex.lock mutex;
+        while Stack.is_empty records do
+          Condition.wait nonempty mutex
+        done;
+        let v = Stack.pop records in
+            Mutex.unlock mutex;
+            v
+    end
 end
 
 let record ~(level : Level.t) (log_message : string) : t =
-  {
-    time = Time.get ();
-    trace = Trace.get ();
-    thread = Thread.get ();
-    level;
-    log_message;
-  }
+    {
+      time = Time.get ();
+      trace = Trace.get ();
+      thread = Thread.get ();
+      level;
+      log_message;
+    }

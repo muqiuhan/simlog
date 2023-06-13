@@ -13,25 +13,25 @@ module Thread = struct
 end
 
 type record = {
-  time : Time.t;
-  trace : Trace.t;
-  thread : Thread.t;
+  time : Time.t option;
+  trace : Trace.t option;
+  thread : Thread.t option;
   level : Level.t;
   log_message : string;
 }
 
 and t = record
 
+type opt = {
+  time : bool;
+  trace : bool;
+  thread : bool;
+}
 (** Some log information is optional, 
     you can configure whether to record the corresponding information through this module *)
-module type Recorder_opt = sig
-  type record_opt = {
-    time : bool;
-    trace : bool;
-    thread : bool;
-  }
 
-  val opt : record_opt
+module type T = sig
+  val opt : opt
 end
 
 (** Thread-safe logging buffer,
@@ -61,16 +61,28 @@ module Buffer = struct
     end
 
   let __buffer = new t
-
-  let push[@inline always] = __buffer#push
-  let pop[@inline always] = __buffer#pop
+  let (push [@inline always]) = __buffer#push
+  let (pop [@inline always]) = __buffer#pop
 end
 
-let record ~(level : Level.t) (log_message : string) : t =
-    {
-      time = Time.get ();
-      trace = Trace.get ();
-      thread = Thread.get ();
-      level;
-      log_message;
-    }
+let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
+    let {time; trace; thread} = opt in
+        {
+          time =
+            (if time then
+               Some (Time.get ())
+             else
+               None);
+          trace =
+            (if trace then
+               Some (Trace.get ())
+             else
+               None);
+          thread =
+            (if thread then
+               Some (Thread.get ())
+             else
+               None);
+          level;
+          log_message;
+        }

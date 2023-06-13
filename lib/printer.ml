@@ -3,4 +3,7 @@ type config = {
   target : Target.t;
 }
 
-module type T = sig end
+module type T = sig
+  val config : config
+  val print : string -> unit
+end

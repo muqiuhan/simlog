@@ -1,7 +1,5 @@
 (** Filter, you can customize which logs need to be recorded *)
 
-type t = Recorder.t
-
 module type T = sig
-  val filter : t -> bool
+  val filter : Recorder.t -> Recorder.t option
 end

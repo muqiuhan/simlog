@@ -5,6 +5,6 @@ type t = {
   time : Time.t;
 }
 
-module type Filter = sig
+module type T = sig
   val filter : t -> bool
 end

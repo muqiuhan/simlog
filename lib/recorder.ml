@@ -22,6 +22,8 @@ type record = {
 
 and t = record
 
+(** Some log information is optional, 
+    you can configure whether to record the corresponding information through this module *)
 module type Recorder_opt = sig
   type record_opt = {
     time : bool;
@@ -32,6 +34,8 @@ module type Recorder_opt = sig
   val opt : record_opt
 end
 
+(** Thread-safe logging buffer,
+    because the logging filter, formatter and printer will run on separate threads *)
 module Buffer = struct
   class t =
     object (_)
@@ -55,6 +59,11 @@ module Buffer = struct
             Mutex.unlock mutex;
             v
     end
+
+  let __buffer = new t
+
+  let push[@inline always] = __buffer#push
+  let pop[@inline always] = __buffer#pop
 end
 
 let record ~(level : Level.t) (log_message : string) : t =

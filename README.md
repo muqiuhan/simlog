@@ -31,9 +31,9 @@ end
 module Log = Simlog.Make (Simlog.Default_logger)
 
 let _ =
-    Log.info "Hello";
-    Log.error "Hey!";
-    Log.warn "Wuuuuu~";
+    Log.info "Hello %s" "simlog";
+    Log.error "Hey! %f" (Unix.gettimeofday ());
+    Log.warn "Wuuuuu~ %d" (Thread.id (Thread.self ()));
 ```
 
 ### Use custom logger

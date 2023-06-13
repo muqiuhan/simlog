@@ -6,11 +6,6 @@ module Trace = struct
   let get () : t = Printexc.get_backtrace ()
 end
 
-module Thread = struct
-  type t = int
-
-  let get () : t = Caml_threads.Thread.self () |> Caml_threads.Thread.id
-end
 
 type record = {
   time : Time.t option;

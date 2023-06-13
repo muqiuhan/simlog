@@ -1,11 +1,10 @@
-(** The logger gets the time, stack traces, level, thread information, and so on *)
+(** The logger gets the time, Queue traces, level, thread information, and so on *)
 
 module Trace = struct
   type t = string
 
   let get () : t = Printexc.get_backtrace ()
 end
-
 
 type record = {
   time : Time.t option;
@@ -34,23 +33,23 @@ end
 module Buffer = struct
   class t =
     object (_)
-      val records : record Stack.t = Stack.create ()
+      val records : record Queue.t = Queue.create ()
       val mutex : Caml_threads.Mutex.t = Caml_threads.Mutex.create ()
       val nonempty : Caml_threads.Condition.t = Caml_threads.Condition.create ()
 
       method push (record : record) : unit =
         Mutex.lock mutex;
-        let was_empty = Stack.is_empty records in
-            Stack.push record records;
+        let was_empty = Queue.is_empty records in
+            Queue.add record records;
             if was_empty then Condition.broadcast nonempty;
             Mutex.unlock mutex
 
       method pop () : record =
         Mutex.lock mutex;
-        while Stack.is_empty records do
+        while Queue.is_empty records do
           Condition.wait nonempty mutex
         done;
-        let v = Stack.pop records in
+        let v = Queue.take records in
             Mutex.unlock mutex;
             v
     end

@@ -50,23 +50,22 @@ end
 open Core
 
 module Make (M : Logger) = struct
-  let[@inline always] info (fmt : 'a) : unit =
-      Recorder.record ~opt:M.Recorder.opt ~level:Level.Info
-        (Format.ksprintf (fun s -> s) fmt)
+  let[@inline always] __record ~(level : Level.t) ~(str : string) : unit =
+      Recorder.record ~opt:M.Recorder.opt ~level str
       |> M.Filter.filter
       |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
 
-  let[@inline always] error (fmt : 'a) : unit =
-      Recorder.record ~opt:M.Recorder.opt ~level:Level.Error
-        (Format.ksprintf (fun s -> s) fmt)
-      |> M.Filter.filter
-      |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
+  let[@inline always] info (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Info) fmt
 
-  let[@inline always] warn (fmt : 'a) : unit =
-      Recorder.record ~opt:M.Recorder.opt ~level:Level.Warn
-        (Format.ksprintf (fun s -> s) fmt)
-      |> M.Filter.filter
-      |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
+  let[@inline always] error (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Error) fmt
+
+  let[@inline always] warn (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Warn) fmt
+
+  let[@inline always] debug (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Debug) fmt
 
   let _ =
       let __logger () : unit =

@@ -5,76 +5,34 @@ module type Logger = sig
   module Recorder : Recorder.T
 end
 
-module Default_logger : Logger = struct
-  module Filter : Filter.T = struct
-    let filter (record : Recorder.t) : Recorder.t option =
-        match record.level with
-        | Debug -> None
-        | _ -> Some record
-  end
-
-  module Formatter : Formatter.T = struct
-    let format (record : Recorder.t) (target : Target.t) : string =
-        let time =
-            match record.time with
-            | Some time -> Time.to_string time
-            | None -> "None"
-        and thread =
-            match record.thread with
-            | Some thread -> Thread.to_string thread
-            | None -> "None"
-        and level = Level.to_string record.level in
-            match target with
-            | File _ ->
-                Format.sprintf "| %s | %s | %s > %s" level time thread
-                  record.log_message
-            | Stdout | Stderr ->
-                Ocolor_format.kasprintf
-                  (fun s -> s)
-                  "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
-                  ((Formatter.Level.format_str_with_ascii
-                      (Format.sprintf "%s > %s" level record.log_message))
-                     record.level)
-  end
-
-  module Printer : Printer.T = struct
-    let config = Printer.{buffer = false; target = Stdout}
-    let print (msg : string) : unit = print_endline msg
-  end
-
-  module Recorder : Recorder.T = struct
-    let opt = Recorder.{time = true; trace = false; thread = true}
+module Builtin = struct
+  module Logger : Logger = struct
+    include Filter.Builtin
+    include Formatter.Builtin
+    include Recorder.Builtin
+    module Printer = Printer.Builtin.Stdout_Mutex_Printer
   end
 end
 
 open Core
 
 module Make (M : Logger) = struct
-  let[@inline always] info (fmt : 'a) : unit =
-      Recorder.record ~opt:M.Recorder.opt ~level:Level.Info
-        (Format.ksprintf (fun s -> s) fmt)
+  let[@inline always] __record ~(level : Level.t) ~(str : string) : unit =
+      Recorder.record ~opt:M.Recorder.opt ~level str
       |> M.Filter.filter
-      |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
+      |> Option.iter ~f:(fun record ->
+             M.Formatter.format record M.Printer.config.target
+             |> M.Printer.print)
 
-  let[@inline always] error (fmt : 'a) : unit =
-      Recorder.record ~opt:M.Recorder.opt ~level:Level.Error
-        (Format.ksprintf (fun s -> s) fmt)
-      |> M.Filter.filter
-      |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
+  let[@inline always] info (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Info) fmt
 
-  let[@inline always] warn (fmt : 'a) : unit =
-      Recorder.record ~opt:M.Recorder.opt ~level:Level.Warn
-        (Format.ksprintf (fun s -> s) fmt)
-      |> M.Filter.filter
-      |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
+  let[@inline always] error (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Error) fmt
 
-  let _ =
-      let __logger () : unit =
-          while true do
-            M.Printer.config.target
-            |> M.Formatter.format (Recorder.Buffer.pop ())
-            |> M.Printer.print
-          done
-      in
-          Caml_threads.Thread.create __logger ()
+  let[@inline always] warn (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Warn) fmt
+
+  let[@inline always] debug (fmt : 'a) =
+      Format.ksprintf (fun str -> __record ~str ~level:Level.Debug) fmt
 end

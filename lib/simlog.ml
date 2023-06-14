@@ -53,7 +53,9 @@ module Make (M : Logger) = struct
   let[@inline always] __record ~(level : Level.t) ~(str : string) : unit =
       Recorder.record ~opt:M.Recorder.opt ~level str
       |> M.Filter.filter
-      |> Option.iter ~f:(fun record -> Recorder.Buffer.push record)
+      |> Option.iter ~f:(fun record ->
+             M.Formatter.format record M.Printer.config.target
+             |> M.Printer.print)
 
   let[@inline always] info (fmt : 'a) =
       Format.ksprintf (fun str -> __record ~str ~level:Level.Info) fmt
@@ -66,14 +68,4 @@ module Make (M : Logger) = struct
 
   let[@inline always] debug (fmt : 'a) =
       Format.ksprintf (fun str -> __record ~str ~level:Level.Debug) fmt
-
-  let _ =
-      let __logger () : unit =
-          while true do
-            M.Printer.config.target
-            |> M.Formatter.format (Recorder.Buffer.pop ())
-            |> M.Printer.print
-          done
-      in
-          Caml_threads.Thread.create __logger ()
 end

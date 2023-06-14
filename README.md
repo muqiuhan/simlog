@@ -14,7 +14,19 @@
 
 ## Usage
 
-You need to implement the `Logger` Functor:
+```ocaml
+module Log = Simlog.Make (Simlog.Default_logger)
+
+let _ =
+    Log.debug "~~~~~";
+    Log.info "Hello %s" "simlog";
+    Log.error "Hey! %f" (Unix.gettimeofday ());
+    Log.warn "Wuuuuu~ %d" (Thread.id (Thread.self ()));
+```
+
+## Builtin Logger
+
+Simlog.Make receives a `Logger` implementation:
 ```ocaml
 module type Logger = sig
   module Filter : Filter.T
@@ -24,69 +36,142 @@ module type Logger = sig
 end
 ```
 
-### Use default logger
+However, a default Logger is defined in Simlog.Builtin:
 ```ocaml
-module Log = Simlog.Make (Simlog.Default_logger)
-
-let _ =
-    Log.info "Hello %s" "simlog";
-    Log.error "Hey! %f" (Unix.gettimeofday ());
-    Log.warn "Wuuuuu~ %d" (Thread.id (Thread.self ()));
-```
-
-### Use custom logger
-
-E.g
-```ocaml
-module Default_logger : Logger = struct
-  module Filter : Filter.T = struct
-    let filter (record : Recorder.t) : Recorder.t option =
-        match record.level with
-        | Debug -> None
-        | _ -> Some record
-  end
-
-  module Formatter : Formatter.T = struct
-    let format (record : Recorder.t) (target : Target.t) : string =
-        let time =
-            match record.time with
-            | Some time -> Time.to_string time
-            | None -> "None"
-        and thread =
-            match record.thread with
-            | Some thread -> Thread.to_string thread
-            | None -> "None"
-        and level = Level.to_string record.level in
-            match target with
-            | File _ ->
-                Format.sprintf "| %s | %s | %s > %s" level time thread
-                  record.log_message
-            | Stdout | Stderr ->
-                Ocolor_format.kasprintf
-                  (fun s -> s)
-                  "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
-                  ((Formatter.Level.format_str_with_ascii
-                      (Format.sprintf "%s > %s" level record.log_message))
-                     record.level)
-  end
-
-  module Printer : Printer.T = struct
-    let config = Printer.{buffer = false; target = Stdout}
-    let print (msg : string) : unit = print_endline msg
-  end
-
-  module Recorder : Recorder.T = struct
-    let opt = Recorder.{time = true; trace = false; thread = true}
+module Builtin = struct
+  module Logger : Logger = struct
+    include Filter.Builtin
+    include Formatter.Builtin
+    include Recorder.Builtin
+    module Printer = Printer.Builtin.Stdout_Mutex_Printer
   end
 end
 ```
 
+So you can directly write:
+```ocaml
+module Log = Simlog.Make (Simlog.Default_logger)
+```
 
-## Build and Test
+By default, there are four built-in Printer implementations:
+- Stdout_Printer
+- Stdout_Mutex_Printer
+- Stderr_Printer
+- Stderr_Mutex_Printer
+- There is currently no implementation of `Target.File`
 
+## Custom Logger
+You can check the `Builtin` module under `Filter`, `Recorder`, `Printer`, `Formatter` module to get the method of custom module:
+
+### Recorder
+Recorder.T defines optional information in Recorder.t (which items do not need to be recorded)
+```ocaml
+module type T = sig
+  val opt : opt
+end
+```
+
+```ocaml
+type opt = {
+  time : bool;
+  trace : bool;
+  thread : bool;
+}
+```
+
+E.g:
+```ocaml
+module Recorder : T = struct
+  let opt = {time = true; trace = false; thread = true}
+end
+```
+
+### Filter
+
+If you need to customize Filter, you only need to implement the `Filter.T` signature:
+```ocaml
+module type T = sig
+  val filter : Recorder.t -> Recorder.t option
+end
+```
+
+For example, the following custom Filter implements filtering of all Debug logs, and you can use the information in Record.t to filter any logging records:
+```ocaml
+module Filter : T = struct
+  let filter (record : Recorder.t) : Recorder.t option =
+    match record.level with
+    | Debug -> None
+    | _ -> Some record
+end
+```
+
+### Formatter
+
+If you need to customize Formatter, you only need to implement the `Formatter.T` signature:
+```ocaml
+module type T = sig
+  val format : Recorder.t -> Target.t -> string
+end
+```
+
+The `format` function receives a logging record and a target (which is the target of the log output)，eSo you can write different formatted messages according to the `target`, And simlog uses the ocolor module to support ascii color output, and its syntax is very simple `{@<color> @}`:
+```ocaml
+module Formatter : T = struct
+  let format (record : Recorder.t) (target : Target.t) : string =
+      let time =
+          match record.time with
+          | Some time -> Time.to_string time
+          | None -> "None"
+      and thread =
+          match record.thread with
+          | Some thread -> Thread.to_string thread
+          | None -> "None"
+      and level = Level.to_string record.level in
+          match target with
+          | File _ ->
+              Format.sprintf "| %s | %s | %s > %s" level time thread
+                record.log_message
+          | Stdout | Stderr ->
+              Ocolor_format.kasprintf
+                (fun s -> s)
+                "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
+                ((Level.format_str_with_ascii
+                    (Format.sprintf "%s > %s" level record.log_message))
+                   record.level)
+end
+```
+
+### Printer
+
+If you need to customize Printer, you only need to implement the `Printer.T` signature:
+```ocaml
+module type T = sig
+  val config : config
+  val print : string -> unit
+end
+```
+The type `config` is a record: `{target : Target.t}`.
+
+E.g:
+```ocaml
+module Stdout_Mutex_Printer : T = struct
+  let mutex = Caml_threads.Mutex.create ()
+  let config = {target = Stdout}
+  
+  let[@inline always] print msg =
+      Caml_threads.Mutex.lock mutex;
+      print_endline msg;
+      Caml_threads.Mutex.unlock mutex
+end
+```
+
+## Build-Test-Install
+
+Just:
 ```
 dune build
 dune test
+dune install
 ```
 
 ## License

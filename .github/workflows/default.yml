@@ -20,7 +20,6 @@ jobs:
           # such as https://github.com/thierry-martinez/stdcompat/issues/26
           - 4.13.x
           - 4.14.x
-          - 5.0.0
           
     runs-on: ${{ matrix.os }}
     steps:

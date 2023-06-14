@@ -4,8 +4,6 @@
 
 *The mediocre OCaml logging library*
 
-__REFACTORING__
-
 </div>
 
 ## Depends

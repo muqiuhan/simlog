@@ -30,34 +30,34 @@ end
 
 (** Thread-safe logging buffer,
     because the logging filter, formatter and printer will run on separate threads *)
-module Buffer = struct
-  class t =
-    object (_)
-      val records : record Queue.t = Queue.create ()
-      val mutex : Caml_threads.Mutex.t = Caml_threads.Mutex.create ()
-      val nonempty : Caml_threads.Condition.t = Caml_threads.Condition.create ()
+(* module Buffer = struct
+     class t =
+       object (_)
+         val records : record Queue.t = Queue.create ()
+         val mutex : Caml_threads.Mutex.t = Caml_threads.Mutex.create ()
+         val nonempty : Caml_threads.Condition.t = Caml_threads.Condition.create ()
 
-      method push (record : record) : unit =
-        Mutex.lock mutex;
-        let was_empty = Queue.is_empty records in
-            Queue.add record records;
-            if was_empty then Condition.broadcast nonempty;
-            Mutex.unlock mutex
+         method push (record : record) : unit =
+           Mutex.lock mutex;
+           let was_empty = Queue.is_empty records in
+               Queue.add record records;
+               if was_empty then Condition.broadcast nonempty;
+               Mutex.unlock mutex
 
-      method pop () : record =
-        Mutex.lock mutex;
-        while Queue.is_empty records do
-          Condition.wait nonempty mutex
-        done;
-        let v = Queue.take records in
-            Mutex.unlock mutex;
-            v
-    end
+         method pop () : record =
+           Mutex.lock mutex;
+           while Queue.is_empty records do
+             Condition.wait nonempty mutex
+           done;
+           let v = Queue.take records in
+               Mutex.unlock mutex;
+               v
+       end
 
-  let __buffer = new t
-  let (push [@inline always]) = __buffer#push
-  let (pop [@inline always]) = __buffer#pop
-end
+     let __buffer = new t
+     let (push [@inline always]) = __buffer#push
+     let (pop [@inline always]) = __buffer#pop
+   end *)
 
 let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
     let {time; trace; thread} = opt in
@@ -80,3 +80,9 @@ let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
           level;
           log_message;
         }
+
+module Builtin = struct
+  module Recorder : T = struct
+    let opt = {time = true; trace = false; thread = true}
+  end
+end

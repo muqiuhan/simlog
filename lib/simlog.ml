@@ -5,45 +5,12 @@ module type Logger = sig
   module Recorder : Recorder.T
 end
 
-module Default_logger : Logger = struct
-  module Filter : Filter.T = struct
-    let filter (record : Recorder.t) : Recorder.t option =
-        match record.level with
-        | Debug -> None
-        | _ -> Some record
-  end
-
-  module Formatter : Formatter.T = struct
-    let format (record : Recorder.t) (target : Target.t) : string =
-        let time =
-            match record.time with
-            | Some time -> Time.to_string time
-            | None -> "None"
-        and thread =
-            match record.thread with
-            | Some thread -> Thread.to_string thread
-            | None -> "None"
-        and level = Level.to_string record.level in
-            match target with
-            | File _ ->
-                Format.sprintf "| %s | %s | %s > %s" level time thread
-                  record.log_message
-            | Stdout | Stderr ->
-                Ocolor_format.kasprintf
-                  (fun s -> s)
-                  "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
-                  ((Formatter.Level.format_str_with_ascii
-                      (Format.sprintf "%s > %s" level record.log_message))
-                     record.level)
-  end
-
-  module Printer : Printer.T = struct
-    let config = Printer.{buffer = false; target = Stdout}
-    let print (msg : string) : unit = print_endline msg
-  end
-
-  module Recorder : Recorder.T = struct
-    let opt = Recorder.{time = true; trace = false; thread = true}
+module Builtin = struct
+  module Logger : Logger = struct
+    include Filter.Builtin
+    include Formatter.Builtin
+    include Recorder.Builtin
+    module Printer = Printer.Builtin.Stdout_Mutex_Printer
   end
 end
 

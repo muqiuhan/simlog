@@ -9,17 +9,17 @@ module Level = struct
       | Debug ->
           Ocolor_format.kasprintf
             (fun s -> s)
-            "@{<blue> %s <blue>@}" log_message
+            "@{<blue> %s @}" log_message
       | Warn ->
           Ocolor_format.kasprintf
             (fun s -> s)
-            "@{<yellow> %s <yellow>@}" log_message
+            "@{<yellow> %s @}" log_message
       | Error ->
-          Ocolor_format.kasprintf (fun s -> s) "@{<red> %s <red>@}" log_message
+          Ocolor_format.kasprintf (fun s -> s) "@{<red> %s @}" log_message
       | Info ->
           Ocolor_format.kasprintf
             (fun s -> s)
-            "@{<green> %s <green>@}" log_message
+            "@{<green> %s @}" log_message
 end
 
 module Builtin = struct

@@ -20,7 +20,7 @@
  (allow_empty)
  (synopsis "The mediocre OCaml logging library")
  (description "The mediocre OCaml logging library")
- (depends ocaml dune ocolor core)
+ (depends ocaml dune ocolor core core_unix)
  (tags
   (log logging logger)))
 

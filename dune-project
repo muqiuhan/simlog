@@ -18,9 +18,15 @@
 (package
  (name simlog)
  (allow_empty)
- (synopsis "The mediocre OCaml logging library")
- (description "The mediocre OCaml logging library")
- (depends ocaml dune ocolor core core_unix)
+ (synopsis "A simple OCaml logging library")
+ (description "A simple OCaml logging library")
+ (depends
+  ocaml
+  dune
+  ocolor
+  core_unix
+  (core
+   (>= v0.15.0)))
  (tags
   (log logging logger)))
 

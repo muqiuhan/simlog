@@ -24,8 +24,9 @@
   ocaml
   dune
   ocolor
-  core
-  (core_kernel (>= 0.15.0)))
+  core_unix
+  (core
+   (>= v0.15.0)))
  (tags
   (log logging logger)))
 

@@ -28,36 +28,13 @@ module type T = sig
   val opt : opt
 end
 
-(** Thread-safe logging buffer,
-    because the logging filter, formatter and printer will run on separate threads *)
-(* module Buffer = struct
-     class t =
-       object (_)
-         val records : record Queue.t = Queue.create ()
-         val mutex : Caml_threads.Mutex.t = Caml_threads.Mutex.create ()
-         val nonempty : Caml_threads.Condition.t = Caml_threads.Condition.create ()
+module Buffer = struct
+  type t = record Queue.t
 
-         method push (record : record) : unit =
-           Mutex.lock mutex;
-           let was_empty = Queue.is_empty records in
-               Queue.add record records;
-               if was_empty then Condition.broadcast nonempty;
-               Mutex.unlock mutex
-
-         method pop () : record =
-           Mutex.lock mutex;
-           while Queue.is_empty records do
-             Condition.wait nonempty mutex
-           done;
-           let v = Queue.take records in
-               Mutex.unlock mutex;
-               v
-       end
-
-     let __buffer = new t
-     let (push [@inline always]) = __buffer#push
-     let (pop [@inline always]) = __buffer#pop
-   end *)
+  let buffer : t = Queue.create ()
+  let[@inline] add record = Queue.add record buffer
+  let[@inline] get () = Queue.take buffer
+end
 
 let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
     let {time; trace; thread} = opt in

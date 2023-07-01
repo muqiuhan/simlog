@@ -23,7 +23,7 @@ module Trace = struct
 end
 
 type record = {
-  time : Time.t option;
+  time : Core__.Time_float.t option;
   trace : Trace.t option;
   thread : Caml_threads.Thread.t option;
   level : Level.t;

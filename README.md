@@ -131,7 +131,7 @@ module Formatter : T = struct
   let format (record : Recorder.t) (target : Target.t) : string =
       let time =
           match record.time with
-          | Some time -> Time.to_string time
+          | Some time -> Core__.Time_float.to_string time
           | None -> "None"
       and thread =
           match record.thread with

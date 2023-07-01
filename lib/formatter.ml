@@ -23,7 +23,7 @@ module Builtin = struct
     let format (record : Recorder.t) (target : Printer.Target.t) : string =
         let time =
             match record.time with
-            | Some time -> Time.to_string_utc time
+            | Some time -> Core__.Time_float.to_string_utc time
             | None -> "None"
         and thread =
             match record.thread with

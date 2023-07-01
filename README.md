@@ -48,6 +48,19 @@ module Builtin = struct
 end
 ```
 
+or just print to file:
+```ocaml
+module File_Log = Simlog.Make (struct
+  include Simlog.Filter.Builtin
+  include Simlog.Formatter.Builtin
+  include Simlog.Recorder.Builtin
+
+  module Printer = Simlog.Printer.Builtin.File_Printer (struct
+    let path = "test.log"
+  end)
+end)
+```
+
 So you can directly write:
 ```ocaml
 module Log = Simlog.Make (Simlog.Default_logger)
@@ -58,7 +71,8 @@ By default, there are four built-in Printer implementations:
 - Stdout_Mutex_Printer
 - Stderr_Printer
 - Stderr_Mutex_Printer
-- There is currently no implementation of `Target.File`
+- File_Printer
+- File_Mutex_Printer
 
 ## Custom Logger
 You can check the `Builtin` module under `Filter`, `Recorder`, `Printer`, `Formatter` module to get the method of custom module:

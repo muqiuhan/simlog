@@ -1,3 +1,8 @@
+module Filter = Filter
+module Formatter = Formatter
+module Recorder = Recorder
+module Printer = Printer
+
 module type Logger = sig
   module Filter : Filter.T
   module Printer : Printer.T

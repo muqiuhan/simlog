@@ -1,14 +1,18 @@
 <div align="center">
 
-# Simlog
+# Simlog (WIP)
 
-*The mediocre OCaml logging library*
+*A simple OCaml5.0 logging library with based on Domain*
+
+![](https://github.com/muqiuhan/simlog/workflows/Linux/badge.svg)
+![](https://github.com/muqiuhan/simlog/workflows/Windows/badge.svg)
+![](https://github.com/muqiuhan/simlog/workflows/MacOS/badge.svg)
 
 </div>
 
 ## Depends
 
-- [ocolor:  Print with style in your terminal using Format's semantic tags ](https://github.com/marc-chevalier/ocolor)
+- [ocolor: Print with style in your terminal using Format's semantic tags ](https://github.com/marc-chevalier/ocolor)
 - [core: Jane Street Capital's standard library overlay ](https://github.com/janestreet/core)
 - [core_unix: Unix-specific portions of Core ](https://github.com/janestreet/core_unix)
 

@@ -5,7 +5,6 @@
 *A simple OCaml5.0 logging library with based on Domain*
 
 ![](https://github.com/muqiuhan/simlog/workflows/Linux/badge.svg)
-![](https://github.com/muqiuhan/simlog/workflows/Windows/badge.svg)
 ![](https://github.com/muqiuhan/simlog/workflows/MacOS/badge.svg)
 
 </div>

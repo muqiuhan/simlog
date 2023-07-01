@@ -22,7 +22,8 @@ end
 open Core
 
 module Make (M : Logger) = struct
-  let[@inline always] __record ~(level : Level.t) ~(str : string) : unit =
+  let[@inline always] __record ~(level : Recorder.Level.t) ~(str : string) :
+      unit =
       Recorder.record ~opt:M.Recorder.opt ~level str
       |> M.Filter.filter
       |> Option.iter ~f:(fun record ->
@@ -30,14 +31,14 @@ module Make (M : Logger) = struct
              |> M.Printer.print)
 
   let[@inline always] info (fmt : 'a) =
-      Format.ksprintf (fun str -> __record ~str ~level:Level.Info) fmt
+      Format.ksprintf (fun str -> __record ~str ~level:Recorder.Level.Info) fmt
 
   let[@inline always] error (fmt : 'a) =
-      Format.ksprintf (fun str -> __record ~str ~level:Level.Error) fmt
+      Format.ksprintf (fun str -> __record ~str ~level:Recorder.Level.Error) fmt
 
   let[@inline always] warn (fmt : 'a) =
-      Format.ksprintf (fun str -> __record ~str ~level:Level.Warn) fmt
+      Format.ksprintf (fun str -> __record ~str ~level:Recorder.Level.Warn) fmt
 
   let[@inline always] debug (fmt : 'a) =
-      Format.ksprintf (fun str -> __record ~str ~level:Level.Debug) fmt
+      Format.ksprintf (fun str -> __record ~str ~level:Recorder.Level.Debug) fmt
 end

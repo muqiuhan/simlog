@@ -1,32 +1,29 @@
 <div align="center">
 
-# Simlog
+# Dog (WIP)
 
-*The mediocre OCaml logging library*
+*A simple OCaml5.0 logging library with based on Domain*
+
+![](https://github.com/muqiuhan/dog/workflows/Linux/badge.svg)
+![](https://github.com/muqiuhan/dog/workflows/MacOS/badge.svg)
 
 </div>
-
-## Depends
-
-- [ocolor:  Print with style in your terminal using Format's semantic tags ](https://github.com/marc-chevalier/ocolor)
-- [core: Jane Street Capital's standard library overlay ](https://github.com/janestreet/core)
-- [core_unix: Unix-specific portions of Core ](https://github.com/janestreet/core_unix)
 
 ## Usage
 
 ```ocaml
-module Log = Simlog.Make (Simlog.Default_logger)
+module Log = Dog.Make (Dog.Default_logger)
 
 let _ =
     Log.debug "~~~~~";
-    Log.info "Hello %s" "simlog";
+    Log.info "Hello %s" "dog";
     Log.error "Hey! %f" (Unix.gettimeofday ());
     Log.warn "Wuuuuu~ %d" (Thread.id (Thread.self ()));
 ```
 
 ## Builtin Logger
 
-Simlog.Make receives a `Logger` implementation:
+Dog.Make receives a `Logger` implementation:
 ```ocaml
 module type Logger = sig
   module Filter : Filter.T
@@ -36,7 +33,7 @@ module type Logger = sig
 end
 ```
 
-However, a default Logger is defined in Simlog.Builtin:
+However, a default Logger is defined in Dog.Builtin:
 ```ocaml
 module Builtin = struct
   module Logger : Logger = struct
@@ -50,12 +47,12 @@ end
 
 or just print to file:
 ```ocaml
-module File_Log = Simlog.Make (struct
-  include Simlog.Filter.Builtin
-  include Simlog.Formatter.Builtin
-  include Simlog.Recorder.Builtin
+module File_Log = Dog.Make (struct
+  include Dog.Filter.Builtin
+  include Dog.Formatter.Builtin
+  include Dog.Recorder.Builtin
 
-  module Printer = Simlog.Printer.Builtin.File_Printer (struct
+  module Printer = Dog.Printer.Builtin.File_Printer (struct
     let path = "test.log"
   end)
 end)
@@ -63,7 +60,7 @@ end)
 
 So you can directly write:
 ```ocaml
-module Log = Simlog.Make (Simlog.Default_logger)
+module Log = Dog.Make (Dog.Default_logger)
 ```
 
 By default, there are four built-in Printer implementations:
@@ -128,13 +125,13 @@ module type T = sig
 end
 ```
 
-The `format` function receives a logging record and a target (which is the target of the log output)，eSo you can write different formatted messages according to the `target`, And simlog uses the ocolor module to support ascii color output, and its syntax is very simple `{@<color> @}`:
+The `format` function receives a logging record and a target (which is the target of the log output)，eSo you can write different formatted messages according to the `target`, And dog uses the ocolor module to support ascii color output, and its syntax is very simple `{@<color> @}`:
 ```ocaml
 module Formatter : T = struct
   let format (record : Recorder.t) (target : Target.t) : string =
       let time =
           match record.time with
-          | Some time -> Time.to_string time
+          | Some time -> Core__.Time_float.to_string time
           | None -> "None"
       and thread =
           match record.thread with

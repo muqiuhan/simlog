@@ -1,0 +1,37 @@
+name: Linux
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+        ocaml-compiler:
+          # Decision on version matrix informed by https://discuss.ocaml.org/t/which-ocaml-compiler-versions-should-we-run-against-in-ci/7933/2
+          # But has gradually inched up due to signs of bitrot on earlier versions
+          # such as https://github.com/thierry-martinez/stdcompat/issues/26
+          - 5.0.x
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v2
+        with:
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
+
+      - name: Install deps
+        run: opam install . --deps-only --with-doc --with-test
+
+      - name: Build
+        run: opam exec -- make build
+
+      - name: Test
+        run: opam exec -- make test

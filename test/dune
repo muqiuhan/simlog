@@ -1,3 +1,3 @@
 (test
- (name test_simlog)
- (libraries simlog))
+ (name test_dog)
+ (libraries dog))

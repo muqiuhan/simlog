@@ -13,8 +13,7 @@ depends: [
   "ocaml" {>= "5.0.0"}
   "dune" {>= "3.5"}
   "ocolor"
-  "core_unix"
-  "core" {>= "v0.15.0"}
+  "core_kernel" {>= "v0.15.0"}
   "odoc" {with-doc}
 ]
 build: [

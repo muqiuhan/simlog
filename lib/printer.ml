@@ -1,3 +1,12 @@
+open Core
+
+module Target = struct
+  type t =
+    | Stdout
+    | Stderr
+    | File of string
+end
+
 type config = {target : Target.t}
 
 module type T = sig
@@ -38,10 +47,9 @@ module Builtin = struct
 
   module File_Printer (T : sig
     val path : string
-  end) : T =
-  struct
+  end) : T = struct
     let config = {target = File T.path}
-    let file = Out_channel.open_text T.path
+    let file = Out_channel.create T.path
 
     let[@inline always] print (str : string) =
         Out_channel.output_string file (str ^ "\n")
@@ -49,11 +57,10 @@ module Builtin = struct
 
   module File_Mutex_Printer (T : sig
     val path : string
-  end) : T =
-  struct
+  end) : T = struct
     let config = {target = File T.path}
     let mutex = Caml_threads.Mutex.create ()
-    let file = Out_channel.open_text T.path
+    let file = Out_channel.create T.path
 
     let[@inline always] print (str : string) =
         Caml_threads.Mutex.lock mutex;

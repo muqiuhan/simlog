@@ -1,3 +1,19 @@
+open Core
+
+module Level = struct
+  type t =
+    | Info
+    | Warn
+    | Error
+    | Debug
+
+  let to_string = function
+      | Info -> "Info"
+      | Warn -> "Warn"
+      | Error -> "Error"
+      | Debug -> "Debug"
+end
+
 (** The logger gets the time, Queue traces, level, thread information, and so on *)
 
 module Trace = struct
@@ -9,7 +25,7 @@ end
 type record = {
   time : Time.t option;
   trace : Trace.t option;
-  thread : Thread.t option;
+  thread : Caml_threads.Thread.t option;
   level : Level.t;
   log_message : string;
 }
@@ -28,20 +44,12 @@ module type T = sig
   val opt : opt
 end
 
-module Buffer = struct
-  type t = record Queue.t
-
-  let buffer : t = Queue.create ()
-  let[@inline] add record = Queue.add record buffer
-  let[@inline] get () = Queue.take buffer
-end
-
 let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
     let {time; trace; thread} = opt in
         {
           time =
             (if time then
-               Some (Time.get ())
+               Some (Core__.Time_float.now ())
              else
                None);
           trace =
@@ -51,7 +59,7 @@ let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
                None);
           thread =
             (if thread then
-               Some (Thread.get ())
+               Some (Caml_threads.Thread.self ())
              else
                None);
           level;

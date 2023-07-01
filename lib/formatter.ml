@@ -1,9 +1,11 @@
+open Core
+
 module type T = sig
-  val format : Recorder.t -> Target.t -> string
+  val format : Recorder.t -> Printer.Target.t -> string
 end
 
 module Level = struct
-  include Level
+  include Recorder.Level
 
   let format_str_with_ascii (log_message : string) = function
       | Debug ->
@@ -18,14 +20,14 @@ end
 
 module Builtin = struct
   module Formatter : T = struct
-    let format (record : Recorder.t) (target : Target.t) : string =
+    let format (record : Recorder.t) (target : Printer.Target.t) : string =
         let time =
             match record.time with
-            | Some time -> Time.to_string time
+            | Some time -> Time.to_string_utc time
             | None -> "None"
         and thread =
             match record.thread with
-            | Some thread -> Thread.to_string thread
+            | Some thread -> string_of_int (Caml_threads.Thread.id thread)
             | None -> "None"
         and level = Level.to_string record.level in
             match target with

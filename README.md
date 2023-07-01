@@ -9,12 +9,6 @@
 
 </div>
 
-## Depends
-
-- [ocolor: Print with style in your terminal using Format's semantic tags ](https://github.com/marc-chevalier/ocolor)
-- [core: Jane Street Capital's standard library overlay ](https://github.com/janestreet/core)
-- [core_unix: Unix-specific portions of Core ](https://github.com/janestreet/core_unix)
-
 ## Usage
 
 ```ocaml

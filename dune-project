@@ -25,8 +25,7 @@
    (>= 5.0.0))
   dune
   ocolor
-  core_unix
-  (core
+  (core_kernel
    (>= v0.15.0)))
  (tags
   (log logging logger)))

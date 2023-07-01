@@ -35,4 +35,29 @@ module Builtin = struct
         Format.fprintf Format.err_formatter "%s\n" msg;
         Caml_threads.Mutex.unlock mutex
   end
+
+  module File_Printer (T : sig
+    val path : string
+  end) : T =
+  struct
+    let config = {target = File T.path}
+    let file = Out_channel.open_text T.path
+
+    let[@inline always] print (str : string) =
+        Out_channel.output_string file (str ^ "\n")
+  end
+
+  module File_Mutex_Printer (T : sig
+    val path : string
+  end) : T =
+  struct
+    let config = {target = File T.path}
+    let mutex = Caml_threads.Mutex.create ()
+    let file = Out_channel.open_text T.path
+
+    let[@inline always] print (str : string) =
+        Caml_threads.Mutex.lock mutex;
+        Out_channel.output_string file (str ^ "\n");
+        Caml_threads.Mutex.unlock mutex
+  end
 end

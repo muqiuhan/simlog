@@ -2,7 +2,7 @@
 
 # Dog (WIP)
 
-*A simple OCaml5.0 logging library with based on Domain*
+*A simple Multicore OCaml logging library based on Domain*
 
 ![](https://github.com/muqiuhan/dog/workflows/Linux/badge.svg)
 ![](https://github.com/muqiuhan/dog/workflows/MacOS/badge.svg)

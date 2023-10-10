@@ -22,11 +22,10 @@
  (description "A simple OCaml logging library")
  (depends
   (ocaml
-   (>= 5.0.0))
+   (>= 4.14.0))
   dune
   ocolor
-  (core_kernel
-   (>= v0.15.0)))
+  core_kernel)
  (tags
   (log logging logger)))
 

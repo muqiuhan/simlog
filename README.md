@@ -1,18 +1,17 @@
 <div align="center">
 
-# Dog (WIP)
+# Dog
 
-*A simple Multicore OCaml logging library based on Domain*
+*A simple OCaml logging library*
 
-![](https://github.com/muqiuhan/dog/workflows/Linux/badge.svg)
-![](https://github.com/muqiuhan/dog/workflows/MacOS/badge.svg)
+![](https://github.com/muqiuhan/dog/workflows/build/badge.svg)
 
 </div>
 
 ## Usage
 
 ```ocaml
-module Log = Dog.Make (Dog.Default_logger)
+module Log = Dog.Make (Dog.Builtin.Logger)
 
 let _ =
     Log.debug "~~~~~";

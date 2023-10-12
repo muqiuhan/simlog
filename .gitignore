@@ -30,3 +30,6 @@ _opam/
 
 # VSCode
 .vscode
+
+# Test file
+/test.log

@@ -1,28 +1,28 @@
 <div align="center">
 
-# Dog
+# Simlog
 
 *A simple OCaml logging library*
 
-![](https://github.com/muqiuhan/dog/workflows/build/badge.svg)
+![](https://github.com/muqiuhan/simlog/workflows/build/badge.svg)
 
 </div>
 
 ## Usage
 
 ```ocaml
-module Log = Dog.Make (Dog.Builtin.Logger)
+module Log = Simlog.Make (Simlog.Builtin.Logger)
 
 let _ =
     Log.debug "~~~~~";
-    Log.info "Hello %s" "dog";
+    Log.info "Hello %s" "simlog";
     Log.error "Hey! %f" (Unix.gettimeofday ());
     Log.warn "Wuuuuu~ %d" (Thread.id (Thread.self ()));
 ```
 
 ## Builtin Logger
 
-Dog.Make receives a `Logger` implementation:
+Simlog.Make receives a `Logger` implementation:
 ```ocaml
 module type Logger = sig
   module Filter : Filter.T
@@ -32,7 +32,7 @@ module type Logger = sig
 end
 ```
 
-However, a default Logger is defined in Dog.Builtin:
+However, a default Logger is defined in Simlog.Builtin:
 ```ocaml
 module Builtin = struct
   module Logger : Logger = struct
@@ -46,12 +46,12 @@ end
 
 or just print to file:
 ```ocaml
-module File_Log = Dog.Make (struct
-  include Dog.Filter.Builtin
-  include Dog.Formatter.Builtin
-  include Dog.Recorder.Builtin
+module File_Log = Simlog.Make (struct
+  include Simlog.Filter.Builtin
+  include Simlog.Formatter.Builtin
+  include Simlog.Recorder.Builtin
 
-  module Printer = Dog.Printer.Builtin.File_Printer (struct
+  module Printer = Simlog.Printer.Builtin.File_Printer (struct
     let path = "test.log"
   end)
 end)
@@ -59,7 +59,7 @@ end)
 
 So you can directly write:
 ```ocaml
-module Log = Dog.Make (Dog.Default_logger)
+module Log = Simlog.Make (Simlog.Default_logger)
 ```
 
 By default, there are four built-in Printer implementations:
@@ -124,31 +124,31 @@ module type T = sig
 end
 ```
 
-The `format` function receives a logging record and a target (which is the target of the log output)，eSo you can write different formatted messages according to the `target`, And dog uses the ocolor module to support ascii color output, and its syntax is very simple `{@<color> @}`:
+The `format` function receives a logging record and a target (which is the target of the log output)，eSo you can write different formatted messages according to the `target`, And simlog uses the ocolor module to support ascii color output, and its syntax is very simple `{@<color> @}`:
 ```ocaml
 module Formatter : T = struct
-  let format (record : Recorder.t) (target : Target.t) : string =
+    let format (record : Recorder.t) (target : Printer.Target.t) : string =
       let time =
-          match record.time with
-          | Some time -> Core__.Time_float.to_string time
-          | None -> "None"
+        match record.time with
+        | Some time -> Core__.Time_float.to_string_utc time
+        | None -> "None"
       and thread =
-          match record.thread with
-          | Some thread -> Thread.to_string thread
-          | None -> "None"
+        match record.thread with
+        | Some thread -> string_of_int (Caml_threads.Thread.id thread)
+        | None -> "None"
       and level = Level.to_string record.level in
-          match target with
-          | File _ ->
-              Format.sprintf "| %s | %s | %s > %s" level time thread
-                record.log_message
-          | Stdout | Stderr ->
-              Ocolor_format.kasprintf
-                (fun s -> s)
-                "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
-                ((Level.format_str_with_ascii
-                    (Format.sprintf "%s > %s" level record.log_message))
-                   record.level)
-end
+        match target with
+        | File _ ->
+          Format.sprintf "| %s | %s | %s > %s" level time thread
+            record.log_message
+        | Stdout | Stderr ->
+          Ocolor_format.kasprintf
+            (fun s -> s)
+            "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
+            ((Level.format_str_with_ascii
+                (Format.sprintf "%s > %s" level record.log_message))
+               record.level)
+  end
 ```
 
 ### Printer
@@ -169,9 +169,9 @@ module Stdout_Mutex_Printer : T = struct
   let config = {target = Stdout}
   
   let[@inline always] print msg =
-      Caml_threads.Mutex.lock mutex;
-      print_endline msg;
-      Caml_threads.Mutex.unlock mutex
+    Caml_threads.Mutex.lock mutex;
+    print_endline msg;
+    Caml_threads.Mutex.unlock mutex
 end
 ```
 

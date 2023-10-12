@@ -1,11 +1,11 @@
 (lang dune 3.5)
 
-(name dog)
+(name simlog)
 
 (generate_opam_files true)
 
 (source
- (github muqiuhan/dog))
+ (github muqiuhan/simlog))
 
 (authors "Muqiu Han")
 
@@ -13,10 +13,10 @@
 
 (license MIT)
 
-(documentation https://github.com/muqiuhan/dog)
+(documentation https://github.com/muqiuhan/simlog)
 
 (package
- (name dog)
+ (name simlog)
  (allow_empty)
  (synopsis "A simple OCaml logging library")
  (description "A simple OCaml logging library")

@@ -6,9 +6,9 @@ maintainer: ["Muqiu Han"]
 authors: ["Muqiu Han"]
 license: "MIT"
 tags: ["log" "logging" "logger"]
-homepage: "https://github.com/muqiuhan/dog"
-doc: "https://github.com/muqiuhan/dog"
-bug-reports: "https://github.com/muqiuhan/dog/issues"
+homepage: "https://github.com/muqiuhan/simlog"
+doc: "https://github.com/muqiuhan/simlog"
+bug-reports: "https://github.com/muqiuhan/simlog/issues"
 depends: [
   "ocaml" {>= "4.11.0"}
   "dune" {>= "3.5"}
@@ -30,4 +30,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/muqiuhan/dog.git"
+dev-repo: "git+https://github.com/muqiuhan/simlog.git"

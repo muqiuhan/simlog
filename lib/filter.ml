@@ -9,8 +9,8 @@ end
 module Builtin = struct
   module Filter : T = struct
     let filter (record : Recorder.t) : Recorder.t option =
-        match record.level with
-        (* | Debug -> None *)
-        | _ -> Some record
+      match record.level with
+      (* | Debug -> None *)
+      | _ -> Some record
   end
 end

@@ -1,3 +1,3 @@
 (library
- (public_name dog)
+ (public_name simlog)
  (libraries core_kernel core_kernel.caml_threads ocolor))

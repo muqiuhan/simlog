@@ -10,7 +10,7 @@ homepage: "https://github.com/muqiuhan/dog"
 doc: "https://github.com/muqiuhan/dog"
 bug-reports: "https://github.com/muqiuhan/dog/issues"
 depends: [
-  "ocaml" {>= "4.14.0"}
+  "ocaml" {>= "4.11.0"}
   "dune" {>= "3.5"}
   "ocolor"
   "core_kernel"

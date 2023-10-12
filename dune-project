@@ -22,7 +22,7 @@
  (description "A simple OCaml logging library")
  (depends
   (ocaml
-   (>= 4.14.0))
+   (>= 4.11.0))
   dune
   ocolor
   core_kernel)

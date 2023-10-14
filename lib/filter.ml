@@ -1,5 +1,3 @@
-open Core
-
 (** Filter, you can customize which logs need to be recorded *)
 
 module type T = sig

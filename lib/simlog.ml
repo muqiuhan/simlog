@@ -19,14 +19,12 @@ module Builtin = struct
   end
 end
 
-open Core
-
 module Make (M : Logger) = struct
   let[@inline always] __record ~(level : Recorder.Level.t) ~(str : string) :
       unit =
     Recorder.record ~opt:M.Recorder.opt ~level str
     |> M.Filter.filter
-    |> Option.iter ~f:(fun record ->
+    |> Option.iter (fun record ->
            M.Formatter.format record M.Printer.config.target |> M.Printer.print)
 
   let[@inline always] info (fmt : 'a) =

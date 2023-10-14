@@ -1,5 +1,3 @@
-open Core
-
 module type T = sig
   val format : Recorder.t -> Printer.Target.t -> string
 end
@@ -20,11 +18,11 @@ module Builtin = struct
     let format (record : Recorder.t) (target : Printer.Target.t) : string =
       let time =
         match record.time with
-        | Some time -> Core__.Time_float.to_string_utc time
+        | Some time -> string_of_float time
         | None -> "None"
       and thread =
         match record.thread with
-        | Some thread -> string_of_int (Caml_threads.Thread.id thread)
+        | Some thread -> string_of_int (Thread.id thread)
         | None -> "None"
       and level = Level.to_string record.level in
         match target with

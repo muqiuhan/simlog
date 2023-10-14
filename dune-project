@@ -24,8 +24,7 @@
   (ocaml
    (>= 4.11.0))
   dune
-  ocolor
-  core_kernel)
+  ocolor)
  (tags
   (log logging logger)))
 

@@ -1,5 +1,3 @@
-open Core
-
 module Target = struct
   type t =
     | Stdout
@@ -26,45 +24,45 @@ module Builtin = struct
   end
 
   module Stdout_Mutex_Printer : T = struct
-    let mutex = Caml_threads.Mutex.create ()
+    let mutex = Mutex.create ()
     let config = {target = Stdout}
 
     let[@inline always] print msg =
-      Caml_threads.Mutex.lock mutex;
+      Mutex.lock mutex;
       print_endline msg;
-      Caml_threads.Mutex.unlock mutex
+      Mutex.unlock mutex
   end
 
   module Stderr_Mutex_Printer : T = struct
-    let mutex = Caml_threads.Mutex.create ()
+    let mutex = Mutex.create ()
     let config = {target = Stdout}
 
     let[@inline always] print msg =
-      Caml_threads.Mutex.lock mutex;
+      Mutex.lock mutex;
       Format.fprintf Format.err_formatter "%s\n" msg;
-      Caml_threads.Mutex.unlock mutex
+      Mutex.unlock mutex
   end
 
   module File_Printer (T : sig
     val path : string
   end) : T = struct
     let config = {target = File T.path}
-    let file = Out_channel.create T.path
+    let file = open_out T.path
 
     let[@inline always] print (str : string) =
-      Out_channel.output_string file (str ^ "\n")
+      output_string file (str ^ "\n")
   end
 
   module File_Mutex_Printer (T : sig
     val path : string
   end) : T = struct
     let config = {target = File T.path}
-    let mutex = Caml_threads.Mutex.create ()
-    let file = Out_channel.create T.path
+    let mutex = Mutex.create ()
+    let file = open_out T.path
 
     let[@inline always] print (str : string) =
-      Caml_threads.Mutex.lock mutex;
-      Out_channel.output_string file (str ^ "\n");
-      Caml_threads.Mutex.unlock mutex
+      Mutex.lock mutex;
+      output_string file (str ^ "\n");
+      Mutex.unlock mutex
   end
 end

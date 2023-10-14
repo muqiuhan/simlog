@@ -1,5 +1,3 @@
-open Core
-
 module Level = struct
   type t =
     | Info
@@ -23,9 +21,9 @@ module Trace = struct
 end
 
 type record = {
-  time : Core__.Time_float.t option;
+  time : float option;
   trace : Trace.t option;
-  thread : Caml_threads.Thread.t option;
+  thread : Thread.t option;
   level : Level.t;
   log_message : string;
 }
@@ -49,7 +47,7 @@ let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
     {
       time =
         (if time then
-           Some (Core__.Time_float.now ())
+           Some (Unix.gettimeofday ())
          else
            None);
       trace =
@@ -59,7 +57,7 @@ let[@inline] record ~(opt : opt) ~(level : Level.t) (log_message : string) : t =
            None);
       thread =
         (if thread then
-           Some (Caml_threads.Thread.self ())
+           Some (Thread.self ())
          else
            None);
       level;

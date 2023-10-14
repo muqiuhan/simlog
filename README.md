@@ -127,28 +127,28 @@ end
 The `format` function receives a logging record and a target (which is the target of the log output)，eSo you can write different formatted messages according to the `target`, And simlog uses the ocolor module to support ascii color output, and its syntax is very simple `{@<color> @}`:
 ```ocaml
 module Formatter : T = struct
-    let format (record : Recorder.t) (target : Printer.Target.t) : string =
-      let time =
-        match record.time with
-        | Some time -> Core__.Time_float.to_string_utc time
-        | None -> "None"
-      and thread =
-        match record.thread with
-        | Some thread -> string_of_int (Caml_threads.Thread.id thread)
-        | None -> "None"
-      and level = Level.to_string record.level in
-        match target with
-        | File _ ->
-          Format.sprintf "| %s | %s | %s > %s" level time thread
-            record.log_message
-        | Stdout | Stderr ->
-          Ocolor_format.kasprintf
-            (fun s -> s)
-            "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
-            ((Level.format_str_with_ascii
-                (Format.sprintf "%s > %s" level record.log_message))
-               record.level)
-  end
+  let format (record : Recorder.t) (target : Printer.Target.t) : string =
+    let time =
+      match record.time with
+      | Some time -> string_of_float time
+      | None -> "None"
+    and thread =
+      match record.thread with
+      | Some thread -> string_of_int (Thread.id thread)
+      | None -> "None"
+    and level = Level.to_string record.level in
+      match target with
+      | File _ ->
+        Format.sprintf "| %s | %s | %s > %s" level time thread
+          record.log_message
+      | Stdout | Stderr ->
+        Ocolor_format.kasprintf
+          (fun s -> s)
+          "|@{<magenta> %s @}(@{<cyan> %s @}) %s" time thread
+          ((Level.format_str_with_ascii
+              (Format.sprintf "%s > %s" level record.log_message))
+             record.level)
+end
 ```
 
 ### Printer
@@ -165,13 +165,13 @@ The type `config` is a record: `{target : Target.t}`.
 E.g:
 ```ocaml
 module Stdout_Mutex_Printer : T = struct
-  let mutex = Caml_threads.Mutex.create ()
+  let mutex = Mutex.create ()
   let config = {target = Stdout}
   
   let[@inline always] print msg =
-    Caml_threads.Mutex.lock mutex;
+    Mutex.lock mutex;
     print_endline msg;
-    Caml_threads.Mutex.unlock mutex
+    Mutex.unlock mutex
 end
 ```
 
